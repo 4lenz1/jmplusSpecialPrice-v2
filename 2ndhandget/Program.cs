@@ -41,7 +41,7 @@ namespace _2ndhandget
             foreach (HtmlNode node in document.DocumentNode.SelectNodes("//span"))
             {
                 string priceInfo = node.InnerText.Trim();
-                // 只保留數字
+                // remain price ONLY
                 priceInfo = Regex.Replace(priceInfo,"[^0-9]","");
                 priceList.Add(priceInfo);
                 //priceList.Add(node.InnerText.Trim(' ')
@@ -65,6 +65,9 @@ namespace _2ndhandget
             itemNum = 0;
             int currentNodeIndex = 0;
             int needItemIndex = 4;
+
+
+
             foreach (HtmlNode node in document.DocumentNode.SelectNodes("//*[contains(@class,'item-img')]"))
             {
                 if (currentNodeIndex > needItemIndex)
@@ -77,13 +80,37 @@ namespace _2ndhandget
                         // create new sub List
                         item.Add(new List<String>());
 
-                        for (int index = 1; index <= 5; index += 2)
-                            // assign item  1(link) , 3(image) ,5(title) to 2D List
-                             item[itemNum].Add(nodeList[index]);
 
+                        item[itemNum].Add(nodeList[1]);
+                        // handle image link
+                        string imageString = nodeList[3];
+                        // change original image link s.jpg to m.jpg
+                       imageString = string.Concat(imageString.Remove(imageString.Length - 5, 5), "m.jpg");
+                       // imageString.Remove(imageString.Length - 1, 1) + ",";
+                        item[itemNum].Add(imageString);
+
+                        // find title and trim 【門市展示機 "title"】
+                        MatchCollection matches = Regex.Matches(nodeList[5], "【(?<item>[^\"]+)】", RegexOptions.IgnoreCase);
+                        string matchString = "";
+                        foreach (Match match in matches)
+                        {
+                              matchString = match.Groups["item"].Value.Replace("門市展示機", "").Trim();
+                        }
+                        // add item Title
+                        item[itemNum].Add(matchString);     
                         //add item price
                         item[itemNum].Add(priceList[itemNum + 16]);
+
+                        // handle voriginal price
+                        List<String> originalPriceList = new List<string>();
+                        originalPriceList =  nodeList[5].Split(' ').ToList();
+                        // add original price
+                        item[itemNum].Add(originalPriceList[originalPriceList.Count - 1 ].Replace("原價",""));
+                        // clear originalPriceList to get new value next time 
+                        originalPriceList.Clear();
+
                         itemNum++;
+                        // clear nodeList to get new node 
                         nodeList.Clear();
                         trimOverlap = true;
                     } // end if of trim double information
