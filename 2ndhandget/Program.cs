@@ -4,10 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data;
-using System.Collections;
+using System.Text.RegularExpressions;
 
 namespace _2ndhandget
 {
@@ -36,43 +33,30 @@ namespace _2ndhandget
             var document = new HtmlDocument();
 
             document.LoadHtml(sourceCode);
-
             
-            var titleXPath = "//h3";
-            var priceXPath = "";
-
-            var titleNode = document.DocumentNode.SelectNodes(titleXPath);
-            var titleResult = "";
-            var priceResult = "";
-            var imgResult = "";
-
-            //foreach (HtmlNode node in document.DocumentNode.SelectNodes("//a"))
-            //{
-            //    result += node.InnerHtml;
-            //}
-
-            //var result[] = "";
-            string[] result = new string[100];
-            //rt-store-goods-disp-mix
-
             int itemNum = 0;
 
             List<String> priceList = new List<string>();
             // get price
-            itemNum = 0;
             foreach (HtmlNode node in document.DocumentNode.SelectNodes("//span"))
             {
-                priceResult += node.InnerText.Trim();
-                priceList.Add($"{itemNum} : " + node.InnerText.Trim());
-                // create new sub List
-                //item.Add(new List<String>());
-                //item[itemNum].Add(node.InnerHtml.Trim());
-                itemNum++;
+                string priceInfo = node.InnerText.Trim();
+                // 只保留數字
+                priceInfo = Regex.Replace(priceInfo,"[^0-9]","");
+                priceList.Add(priceInfo);
+                //priceList.Add(node.InnerText.Trim(' ')
+                //    .Replace("直","")
+                //    .Replace("接", "")
+                //    .Replace("購", "")
+                //    .Replace("買", "")
+                //    .Replace("價", "")
+                //    .Replace("：", "")
+                //    .Replace("元", "")
+                //    .Replace(" ", "")
+                //    .Replace("　", "")
+                //    );
             }
-            priceList.ForEach(Console.WriteLine);
-            //Console.WriteLine(priceResult);
-
-
+            
             List<List<String>> item = new List<List<String>>();
             
             List<String> nodeList = new List<string>();
@@ -95,25 +79,19 @@ namespace _2ndhandget
 
                         if (nodeList.Count == 11)
                         {
-                            // assign item  1 , 3 ,5 to 2D List
-                            //add item link
-                            item[itemNum].Add(nodeList[1]);
-                            //add item image
-                            item[itemNum].Add(nodeList[3]);
-                            //add item title
-                            item[itemNum].Add(nodeList[5]);
+                            for (int index = 1; index <= 5; index += 2)
+                                // assign item  1(link) , 3(image) ,5(title) to 2D List
+                                item[itemNum].Add(nodeList[index]);
+
+                            //item[itemNum].Add(nodeList[5]);
                             //add item price
                             item[itemNum].Add(priceList[itemNum + 16]);
                         }
                         else
                         {
-                            // assign item  1 , 3 ,5 to 2D List
-                            //add item link
-                            item[itemNum].Add(nodeList[3]);
-                            //add item image
-                            item[itemNum].Add(nodeList[5]);
-                            //add item title
-                            item[itemNum].Add(nodeList[7]);
+                            for (int index = 3; index <= 7; index += 2)
+                                // assign item  3(link) , 5(image) ,7(title) to 2D List
+                                item[itemNum].Add(nodeList[index]);
                             //add item price
                             item[itemNum].Add(priceList[itemNum + 16]);
                         }
@@ -134,16 +112,6 @@ namespace _2ndhandget
                 }
             } // end foreach
 
-
-
-            //int index = 0;
-            //foreach (HtmlNode node in document.DocumentNode.SelectNodes("//h3"))
-            //{
-            //    result[index++] = node.InnerHtml.Trim();
-            //}
-
-
-
             // print 
             for (int i = 0; i < item.Count; i++)
             {
@@ -154,16 +122,7 @@ namespace _2ndhandget
                     Console.WriteLine($"[{i}] [{infoNum}] : " + item[i][infoNum]);
                 }
             }
-
             Console.ReadLine();
-
-
         }// end of main
-
-
     }
 }
-
-
-
- 
