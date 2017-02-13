@@ -77,29 +77,15 @@ namespace _2ndhandget
                         // create new sub List
                         item.Add(new List<String>());
 
-                        if (nodeList.Count == 11)
-                        {
-                            for (int index = 1; index <= 5; index += 2)
-                                // assign item  1(link) , 3(image) ,5(title) to 2D List
-                                item[itemNum].Add(nodeList[index]);
+                        for (int index = 1; index <= 5; index += 2)
+                            // assign item  1(link) , 3(image) ,5(title) to 2D List
+                             item[itemNum].Add(nodeList[index]);
 
-                            //item[itemNum].Add(nodeList[5]);
-                            //add item price
-                            item[itemNum].Add(priceList[itemNum + 16]);
-                        }
-                        else
-                        {
-                            for (int index = 3; index <= 7; index += 2)
-                                // assign item  3(link) , 5(image) ,7(title) to 2D List
-                                item[itemNum].Add(nodeList[index]);
-                            //add item price
-                            item[itemNum].Add(priceList[itemNum + 16]);
-                        }
+                        //add item price
+                        item[itemNum].Add(priceList[itemNum + 16]);
                         itemNum++;
-                        //imgResult += node.InnerHtml.Trim(' ');
                         nodeList.Clear();
                         trimOverlap = true;
-
                     } // end if of trim double information
                     else
                     {
@@ -117,8 +103,6 @@ namespace _2ndhandget
             {
                 for (int infoNum = 0; infoNum < item[i].Count; infoNum++)
                 {
-                    //item.Add(new List<String>());
-                    //item[i].Add(priceList[infoNum + 16]);
                     Console.WriteLine($"[{i}] [{infoNum}] : " + item[i][infoNum]);
                 }
             }
