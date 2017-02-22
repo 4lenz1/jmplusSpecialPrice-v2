@@ -89,8 +89,9 @@ namespace _2ndhandget
                         // handle image link
                         string imageString = nodeList[3];
                         // change original image link s.jpg to m.jpg
-                        imageString = string.Concat(imageString.Remove(imageString.Length - 5, 5), "m.jpg");
+                        imageString = string.Concat(imageString.Remove(imageString.Length - 6, 2));
                         // imageString.Remove(imageString.Length - 1, 1) + ",";
+                        Console.WriteLine(imageString);
                         item[itemNum].Add(imageString);
 
                         // find title and trim 【門市展示機 "title"】
@@ -98,7 +99,7 @@ namespace _2ndhandget
                         string matchString = "";
                         foreach (Match match in matches)
                         {
-                            matchString = match.Groups["item"].Value.Replace("門市展示機", "").Trim();
+                            matchString = match.Groups["item"].Value.Replace("門市展示機", "").Trim().Replace(" ","");
                         }
                         // add item Title
                         item[itemNum].Add(matchString);
@@ -130,17 +131,29 @@ namespace _2ndhandget
             } // end foreach
 
             // print 
+            Console.WriteLine();
             for (int i = 0; i < item.Count; i++)
             {
-                for (int infoNum = 0; infoNum < item[i].Count; infoNum++)
-                {
-                    Console.WriteLine($"[{i}] [{infoNum}] : " + item[i][infoNum]);
-                }
+                Console.WriteLine($"{item[i][2],30}" +
+                   $"{item[i][3],10}" +
+                   $"{item[i][4], 10}" +
+                   "\n");
             }
+
+
+            //for (int i = 0; i < item.Count; i++)
+            //{
+            //    for (int infoNum = 0; infoNum < item[i].Count; infoNum++)
+            //    {
+            //        Console.Write(item[i][infoNum]);
+            //    }
+            //}
             Program program = new Program();
-            program.InitialTable();
-            program.CreateTable();
-            program.InserTable(item);
+           
+
+            //program.InitialTable();
+            //program.ClearTable();
+            //program.InserTable(item);
 
 
             Console.ReadLine();
@@ -148,22 +161,8 @@ namespace _2ndhandget
 
 
         }// end of main
+
         private void InitialTable()
-        {
-            // Retrieve the storage account from the connection string.
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-                CloudConfigurationManager.GetSetting("StorageConnectionString"));
-
-            // Create the table client.
-            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
-
-            // Create the CloudTable that represents the "people" table.
-            CloudTable table = tableClient.GetTableReference("Item");
-
-            // Delete the table it if exists.
-            table.DeleteIfExists();
-        }
-        private void CreateTable()
         {
             // Retrieve the storage account from the connection string.
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
@@ -177,8 +176,45 @@ namespace _2ndhandget
 
             // Create the table if it doesn't exist.
             //table.CreateIfNotExists();
-            table.CreateIfNotExists();
-            Console.WriteLine("table created.");
+            if (table.CreateIfNotExists())
+            {
+                Console.WriteLine("table created.");
+            }
+            else
+            {
+                Console.WriteLine("table exist");
+            }
+
+        }
+        private void ClearTable()
+        {
+            // Retrieve the storage account from the connection string.
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
+                CloudConfigurationManager.GetSetting("StorageConnectionString"));
+
+            // Create the table client.
+            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
+
+            // Create the CloudTable object that represents the "people" table.
+            CloudTable table = tableClient.GetTableReference("Item");
+
+
+            // Construct the query operation for all customer entities where PartitionKey = "Smith".
+            TableQuery <ItemEntity> query = new TableQuery<ItemEntity>()
+                .Where(TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, "Item"));
+
+     
+            // Loop through the results, displaying information about the entity.
+            foreach (ItemEntity entity in table.ExecuteQuery(query))
+            {
+                //Console.WriteLine("{0}, {1}", entity.PartitionKey, entity.RowKey);
+                var entityToDelete = new DynamicTableEntity(entity.PartitionKey, entity.RowKey);
+                entityToDelete.ETag = "*";
+
+                table.Execute(TableOperation.Delete(entityToDelete));
+            }
+
+            Console.WriteLine("table cleared");
         }
         private void InserTable(List<List<string>> list)
         {
@@ -209,18 +245,6 @@ namespace _2ndhandget
                 // Execute the insert operation.
                 table.Execute(insertOperation);
             }
-            //ItemEntity item = new ItemEntity("「JM-PLUS 加煒電子」【門市展示機 ATH-WS99】耳罩式耳機 原價10000", "Item");
-
-            //item.itemLink = "http://goods.ruten.com.tw/item/show?21702113118355";
-            //item.imageLink = "http://e.rimg.com.tw/s1/3/a0/93/21702113118355_503_s.jpg";
-            //item.originalPrice = "10000";
-            //// Create the TableOperation object that inserts the customer entity.   
-            //TableOperation insertOperation = TableOperation.Insert(item);
-
-            //// Execute the insert operation.
-            //table.Execute(insertOperation);
-
-
             Console.WriteLine("table inserted");
         }
     }
