@@ -44,20 +44,9 @@ namespace _2ndhandget
             foreach (HtmlNode node in document.DocumentNode.SelectNodes("//span"))
             {
                 string priceInfo = node.InnerText.Trim();
-                // remain price ONLY
+                // trim everything but price 
                 priceInfo = Regex.Replace(priceInfo, "[^0-9]", "");
                 priceList.Add(priceInfo);
-                //priceList.Add(node.InnerText.Trim(' ')
-                //    .Replace("直","")
-                //    .Replace("接", "")
-                //    .Replace("購", "")
-                //    .Replace("買", "")
-                //    .Replace("價", "")
-                //    .Replace("：", "")
-                //    .Replace("元", "")
-                //    .Replace(" ", "")
-                //    .Replace("　", "")
-                //    );
             }
 
             List<List<String>> item = new List<List<String>>();
@@ -149,11 +138,11 @@ namespace _2ndhandget
             //    }
             //}
             Program program = new Program();
-           
 
-            //program.InitialTable();
-            //program.ClearTable();
-            //program.InserTable(item);
+
+            program.InitialTable();
+            program.ClearTable();
+            program.InserTable(item);
 
 
             Console.ReadLine();
